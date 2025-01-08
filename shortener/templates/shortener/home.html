@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>سرویس کوتاه‌کننده URL</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'shortener/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>کوتاه‌کننده URL</h1>
+        <form id="shorten-form">
+            <input type="url" id="original_url" placeholder="URL خود را وارد کنید" required>
+            <button type="submit">کوتاه کن</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('shorten-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // لود تیکه ای
+
+            const originalUrl = document.getElementById('original_url').value;
+            const resultDiv = document.getElementById('result');
+
+            fetch('/shorten/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'original_url': originalUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.short_url) {
+                    resultDiv.innerHTML = `لینک کوتاه: <a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+                } else if (data.error) {
+                    resultDiv.innerHTML = `<span class="error">خطا: ${data.error}</span>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = '<span class="error">خطا.</span>';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
